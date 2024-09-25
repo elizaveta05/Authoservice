@@ -15,11 +15,20 @@ namespace Authoservice.Model
     
     public partial class Number2Entities : DbContext
     {
+        private static Number2Entities entities;
         public Number2Entities()
             : base("name=Number2Entities")
         {
         }
-    
+        public static Number2Entities GetContext()
+        {
+            if (entities == null)
+            {
+                entities = new Number2Entities();
+            }
+            return entities;
+        }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             throw new UnintentionalCodeFirstException();
