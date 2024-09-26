@@ -12,32 +12,37 @@ namespace Authoservice.Pages
         private int pageSize = 10;
         private int totalRecords = 0;
 
+        /// <summary>
+        /// Инициализирует компонент страницу и загружает данные о клиентах.
+        /// </summary>
+        /// <param name="frame">Фрейм, содержащий эту страницу.</param>
         public ListKlients(Frame frame)
         {
             InitializeComponent();
             LoadData();
         }
 
+        /// <summary>
+        /// Загружает данные о клиентах, применяет фильтры, сортировки и обновляет интерфейс.
+        /// </summary>
         public void LoadData()
         {
             try
             {
-                var query = Number2Entities.GetContext().Client.AsQueryable();
+                var query = Number2Entities.GetContext().Client
+                    .Include("Tag")
+                    .AsQueryable();
 
                 query = ApplySearchFilter(query);
                 query = ApplyGenderFilter(query);
                 query = ApplySorting(query);
 
-                totalRecords = query.Count(); // Обновляем общее количество записей
-
-                // Пагинация
+                totalRecords = query.Count();
                 var clients = query.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
                 clientsGrid.ItemsSource = clients;
 
-                // Обновляем текст с количеством записей
                 recordCountText.Text = $"{(pageSize == -1 ? totalRecords : clients.Count)} из {totalRecords}";
 
-                // Обновляем доступность навигационных кнопок
                 btnBack.IsEnabled = currentPage > 1;
                 btnNext.IsEnabled = currentPage < (totalRecords + pageSize - 1) / pageSize;
             }
@@ -47,6 +52,11 @@ namespace Authoservice.Pages
             }
         }
 
+        /// <summary>
+        /// Применяет фильтрацию данных по введенному тексту.
+        /// </summary>
+        /// <param name="query">Запрос для фильтрации.</param>
+        /// <returns>Отфильтрованный запрос.</returns>
         private IQueryable<Client> ApplySearchFilter(IQueryable<Client> query)
         {
             if (!string.IsNullOrEmpty(tbSearch.Text))
@@ -63,6 +73,11 @@ namespace Authoservice.Pages
             return query;
         }
 
+        /// <summary>
+        /// Применяет фильтрацию данных по полу.
+        /// </summary>
+        /// <param name="query">Запрос для фильтрации.</param>
+        /// <returns>Отфильтрованный запрос.</returns>
         private IQueryable<Client> ApplyGenderFilter(IQueryable<Client> query)
         {
             if (cbFilter.SelectedItem is ComboBoxItem selectedFilter)
@@ -70,17 +85,26 @@ namespace Authoservice.Pages
                 switch (selectedFilter.Tag.ToString())
                 {
                     case "1":
-                        return query.Where(c => c.GenderCode == "2"); // Женский
+                        return query.Where(c => c.GenderCode == "2");
                     case "2":
-                        return query.Where(c => c.GenderCode == "1"); // Мужской
+                        return query.Where(c => c.GenderCode == "1");
+                    case "3":
+                        var currentMonth = DateTime.Now.Month;
+                        return query.Where(c => c.Birthday.HasValue && c.Birthday.Value.Month == currentMonth); // День рождения в этом месяце
                     case "0":
+                        return query;
                     default:
-                        return query; // Все
+                        return query;
                 }
             }
             return query;
         }
 
+        /// <summary>
+        /// Применяет сортировку данных на основе выбранного критерия.
+        /// </summary>
+        /// <param name="query">Запрос для сортировки.</param>
+        /// <returns>Отсортированный запрос.</returns>
         private IQueryable<Client> ApplySorting(IQueryable<Client> query)
         {
             if (cbSort.SelectedItem is ComboBoxItem selectedSort)
@@ -88,19 +112,23 @@ namespace Authoservice.Pages
                 switch (selectedSort.Tag.ToString())
                 {
                     case "1":
-                        return query.OrderBy(c => c.LastName); // По фамилии
+                        return query.OrderBy(c => c.LastName);
                     case "2":
-                        return query.OrderByDescending(c => c.RegistrationDate); // По дате добавления
+                        return query.OrderByDescending(c => c.ClientService
+                            .OrderByDescending(cs => cs.StartTime)
+                            .FirstOrDefault().StartTime);
                     case "3":
-                        return query.OrderByDescending(c => c.ClientService.Count()); // Полное количество посещений
+                        return query.OrderByDescending(c => c.ClientService.Count());
                     default:
-                        return query.OrderBy(c => c.ID); // Сортировка по умолчанию по Id
+                        return query.OrderBy(c => c.ID);
                 }
             }
-            return query.OrderBy(c => c.ID); // Сортировка по умолчанию, если сортировка не выбрана
+            return query.OrderBy(c => c.ID);
         }
 
-
+        /// <summary>
+        /// Обрабатывает нажатие кнопки "Назад" для навигации по страницам.
+        /// </summary>
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
             if (currentPage > 1)
@@ -110,6 +138,9 @@ namespace Authoservice.Pages
             }
         }
 
+        /// <summary>
+        /// Обрабатывает нажатие кнопки "Вперед" для навигации по страницам.
+        /// </summary>
         private void NextButton_Click(object sender, RoutedEventArgs e)
         {
             if (currentPage < (totalRecords + pageSize - 1) / pageSize)
@@ -119,6 +150,9 @@ namespace Authoservice.Pages
             }
         }
 
+        /// <summary>
+        /// Обрабатывает изменения при выборе размера страницы.
+        /// </summary>
         private void cbPageSize_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (cbPageSize.SelectedItem is ComboBoxItem selectedItem)
@@ -129,25 +163,89 @@ namespace Authoservice.Pages
             }
         }
 
+        /// <summary>
+        /// Обрабатывает изменения текста в поле поиска.
+        /// </summary>
         private void tbSearch_TextChanged(object sender, TextChangedEventArgs e)
         {
             currentPage = 1;
             LoadData();
         }
 
+        /// <summary>
+        /// Обрабатывает изменения при выборе фильтра.
+        /// </summary>
         private void Type_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            LoadData(); // Обновление данных при изменении фильтра
+            LoadData();
         }
 
+        /// <summary>
+        /// Обрабатывает изменения при выборе сортировки.
+        /// </summary>
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            LoadData(); // Обновление данных при изменении сортировки
+            LoadData();
         }
 
-        private void clientGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
+        private void clientGrid_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
 
+        /// <summary>
+        /// Удаление клиента.
+        /// </summary>
+        private void btnDelete_Click(object sender, RoutedEventArgs e)
+        {
+            if (clientsGrid.SelectedItem is Client selectedClient)
+            {
+                // Проверяем, есть ли у клиента записи о посещениях
+                var clientVisits = selectedClient.ClientService;
+                if (clientVisits != null && clientVisits.Any())
+                {
+                    MessageBox.Show("Невозможно удалить клиента, у которого есть записи о посещениях.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                try
+                {
+                    // Удаляем записи связи клиента с тегами в таблице TagOfClient
+                    /*
+                    var clientTags = Number2Entities.GetContext().TagOfClient.Where(tc => tc.ClientID == selectedClient.ID).ToList();
+                    foreach (var clientTag in clientTags)
+                    {
+                        Number2Entities.GetContext().TagOfClient.Remove(clientTag);
+                    }
+                    */
+
+                    // Удаляем самого клиента
+                    Number2Entities.GetContext().Client.Remove(selectedClient);
+                    Number2Entities.GetContext().SaveChanges();
+
+                    MessageBox.Show("Клиент и его связанные теги успешно удалены.", "Удаление", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    // Обновляем данные на странице после удаления
+                    LoadData();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Произошла ошибка при удалении клиента: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Пожалуйста, выберите клиента для удаления.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void btnUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            if (clientsGrid.SelectedItem is Client selectedClient)
+            {
+                NavigationService.Navigate(new PageKlients(selectedClient));
+            }
+            else
+            {
+                MessageBox.Show("Пожалуйста, выберите клиента для редактирования.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
     }
 }

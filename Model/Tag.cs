@@ -11,7 +11,8 @@ namespace Authoservice.Model
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.Windows.Media;
+
     public partial class Tag
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -23,7 +24,13 @@ namespace Authoservice.Model
         public int ID { get; set; }
         public string Title { get; set; }
         public string Color { get; set; }
-    
+        public SolidColorBrush ColorBrush
+        {
+            get
+            {
+                return (SolidColorBrush)(new BrushConverter().ConvertFromString($"#{Color}"));
+            }
+        }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Client> Client { get; set; }
     }

@@ -6,19 +6,21 @@
       xmlns:local="clr-namespace:Authoservice.Pages"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="ListKlients" Background="White" MinHeight="450" MinWidth="800">
+      Title="ListKlients" Background="White" >
     <Grid>
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Margin="5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
 
@@ -43,21 +45,22 @@
                     <ComboBoxItem Tag="0" Content="Все"/>
                     <ComboBoxItem Tag="1" Content="Женский"/>
                     <ComboBoxItem Tag="2" Content="Мужской"/>
+                    <ComboBoxItem Tag="3" Content="День рождения в этом месяце"/>
                 </ComboBox>
             </StackPanel>
         </Grid>
 
         <DataGrid AutoGenerateColumns="False" x:Name="clientsGrid" Grid.Row="1" Margin="5" IsReadOnly="True" SelectionChanged="clientGrid_SelectionChanged">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding ID}" Header="Идентификатор" Width="*"/>
-                <DataGridTextColumn Binding="{Binding Gender.Name}" Header="Пол" Width="*"/>
-                <DataGridTextColumn Binding="{Binding FirstName}" Header="Фамилия" Width="*"/>
-                <DataGridTextColumn Binding="{Binding LastName}" Header="Имя" Width="*"/>
-                <DataGridTextColumn Binding="{Binding Patronymic}" Header="Отчество" Width="*"/>
-                <DataGridTextColumn Binding="{Binding Birthday}" Header="Дата рождения" Width="*"/>
-                <DataGridTextColumn Binding="{Binding Phone}" Header="Телефон" Width="*"/>
-                <DataGridTextColumn Binding="{Binding Email}" Header="Email" Width="*"/>
-                <DataGridTextColumn Binding="{Binding RegistrationDate}" Header="Дата добавления" Width="*"/>
+                <DataGridTextColumn Binding="{Binding ID}" Header="ID" />
+                <DataGridTextColumn Binding="{Binding Gender.Name}" Header="Пол" />
+                <DataGridTextColumn Binding="{Binding FirstName}" Header="Фамилия" />
+                <DataGridTextColumn Binding="{Binding LastName}" Header="Имя" />
+                <DataGridTextColumn Binding="{Binding Patronymic}" Header="Отчество" />
+                <DataGridTextColumn Header="Дата рождения" Binding="{Binding Birthday, StringFormat='{}{0:dd.MM.yyyy}'}" />
+                <DataGridTextColumn Binding="{Binding Phone}" Header="Телефон" />
+                <DataGridTextColumn Binding="{Binding Email}" Header="Email"/>
+                <DataGridTextColumn Binding="{Binding RegistrationDate}" Header="Дата добавления" />
                 <DataGridTextColumn Header="Дата последнего посещения" Binding="{Binding LastVisitDate}" />
                 <DataGridTextColumn Header="Количество посещений" Binding="{Binding ClientService.Count}" />
                 <DataGridTemplateColumn Header="Теги">
@@ -66,7 +69,7 @@
                             <ItemsControl ItemsSource="{Binding Tag}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Name}" Background="{Binding Color}" Margin="2" Padding="4" />
+                                        <TextBlock Text="{Binding Title}" Background="{Binding ColorBrush}" Margin="2" Padding="2"/>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -78,43 +81,42 @@
 
         <Grid Grid.Row="2" Margin="5">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
             </Grid.ColumnDefinitions>
 
-            <!-- Выберите количество записей на странице -->
             <StackPanel Grid.Column="0" Orientation="Vertical" Margin="5">
                 <TextBlock Text="Записей на странице:" />
                 <ComboBox x:Name="cbPageSize" VerticalAlignment="Top" SelectionChanged="cbPageSize_SelectionChanged">
-                    <ComboBoxItem Content="10" Tag="10"/>
-                    <ComboBoxItem Content="50" Tag="50"/>
-                    <ComboBoxItem Content="200" Tag="200"/>
-                    <ComboBoxItem Content="Все" Tag="-1"/>
+                    <ComboBoxItem Content="10" Tag="10" />
+                    <ComboBoxItem Content="50" Tag="50" />
+                    <ComboBoxItem Content="200" Tag="200" />
+                    <ComboBoxItem Content="Все" Tag="-1" />
                 </ComboBox>
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Stretch">
-                <TextBlock Text ="Всего: " VerticalAlignment="Center" Margin="5"/>
-                <TextBlock x:Name="recordCountText" VerticalAlignment="Center" Margin="5"/>
-
+                <TextBlock Text="Всего: " VerticalAlignment="Center" Margin="5" />
+                <TextBlock x:Name="recordCountText" VerticalAlignment="Center" Margin="5" />
             </StackPanel>
 
             <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Stretch">
-                <Button x:Name="btnBack" Content="Предыдущая" IsEnabled="False" Click="BackButton_Click" Height="30" Width="100"/>
-                <StackPanel x:Name="spNumberPage" Orientation="Horizontal" Margin="5"/>
-                <Button x:Name="btnNext" Content="Следующая" Click="NextButton_Click" Height="30" Width="100"/>
+                <Button x:Name="btnBack" Content="Предыдущая" IsEnabled="False" Click="BackButton_Click" Height="30" Width="100" Margin="5" />
+                <StackPanel x:Name="pagin" Orientation="Horizontal" Margin="5"></StackPanel>
+                <Button x:Name="btnNext" Content="Следующая" Click="NextButton_Click" Height="30" Width="100" Margin="5" />
             </StackPanel>
-
         </Grid>
-
-        <Grid Grid.Row="3" Margin="5">
+        
+        <Grid Grid.Row="3" Margin="5" VerticalAlignment="Bottom">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
             </Grid.ColumnDefinitions>
+            <Button x:Name="btnDelete" Height="30" Width="auto" Grid.Column="0" Content="Удалить" Margin="5" Click="btnDelete_Click" />
+            <Button x:Name="btnAdd" Height="30" Width="auto" Grid.Column="1" Content="Добавить" Margin="5" />
+            <Button x:Name="btnUpdate" Height="30" Width="auto" Grid.Column="2" Content="Редактировать" Margin="5" Click="btnUpdate_Click" />
         </Grid>
     </Grid>
 </Page>
