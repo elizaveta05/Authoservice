@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -28,6 +29,7 @@ namespace Authoservice.Pages
         // Добавляем свойство для доступных тегов
         public List<Tag> AvailableTags { get; set; }
         private readonly string imagesBasePath = @"C:\Users\elozo\OneDrive\Рабочий стол\4 курс\МДК.02.02 Инструментальные средства разработки программного обеспечения\Автосервис - клиенты\Authoservice\Images";
+        public string pathNewClient;
 
         public PageKlients(Client client)
         {
@@ -139,19 +141,6 @@ namespace Authoservice.Pages
                 MessageBox.Show("Произошла ошибка при загрузке данных: " + ex.Message);
             }
         }
-
-        private void btnAddTag_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-
-        private void btnDalateTag_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-
         private void btnDelete_Click(object sender, RoutedEventArgs e)
         {
             if (MessageBox.Show("Вы уверены, что хотите удалить клиента?", "Подтверждение", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
@@ -234,15 +223,14 @@ namespace Authoservice.Pages
                         Email = tbEmail.Text,
                         Phone = tbPhone.Text,
                         Birthday = dpBirthday.SelectedDate,
+                        RegistrationDate = DateTime.Now,
                         GenderCode = rbMale.IsChecked == true ? "1" : "2",
-                        PhotoPath = client?.PhotoPath
-
+                        PhotoPath = pathNewClient
                     };
 
                     Number2Entities.GetContext().Client.Add(client);
                     Number2Entities.GetContext().SaveChanges();
-                    LoadTags();
-                }
+                    btnSaveTag_Click(sender,e);                }
                 else // Если клиент уже существует, то обновляем данные
                 {
                     client.FirstName = tbFirstName.Text;
@@ -264,11 +252,6 @@ namespace Authoservice.Pages
             {
                 MessageBox.Show("Ошибка при сохранении данных: " + ex.Message);
             }
-        }
-
-        private void gridTag_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
         }
 
         private void btnChangePhoto_Click(object sender, RoutedEventArgs e)
@@ -301,7 +284,14 @@ namespace Authoservice.Pages
                     imageClient.Source = bitmap;
 
                     string relativePath = System.IO.Path.Combine("clients", System.IO.Path.GetFileName(selectedFilePath));
-                    client.PhotoPath = relativePath;
+                    if(client != null)
+                    {
+                        client.PhotoPath = relativePath;
+                    }
+                    else
+                    {
+                        pathNewClient = relativePath;
+                    }
 
                     string destinationPath = System.IO.Path.Combine(imagesBasePath, relativePath);
                     File.Copy(selectedFilePath, destinationPath, true);
