@@ -1,5 +1,6 @@
 ﻿using Authoservice.Model;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -33,28 +34,48 @@ namespace Authoservice.Pages
         {
             try
             {
+                // Получаем базовый запрос
                 var query = Number2Entities.GetContext().Client
                     .Include("Tag")
                     .AsQueryable();
 
+                // Применяем фильтры и сортировку
                 query = ApplySearchFilter(query);
                 query = ApplyGenderFilter(query);
                 query = ApplySorting(query);
 
+                // Подсчитываем общее количество записей
                 totalRecords = query.Count();
-                var clients = query.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
+                IList<Client> clients;
+
+                // Получаем данные в зависимости от размера страницы
+                if (pageSize == -1)
+                {
+                    clients = query.ToList();
+                    currentPage = 1;
+                }
+                else
+                {
+                    clients = query.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+                }
+
                 clientsGrid.ItemsSource = clients;
 
+                    // Обновляем текст для отображения количества записей
                 recordCountText.Text = $"{(pageSize == -1 ? totalRecords : clients.Count)} из {totalRecords}";
 
+                    // Обновляем доступность кнопок
                 btnBack.IsEnabled = currentPage > 1;
-                btnNext.IsEnabled = currentPage < (totalRecords + pageSize - 1) / pageSize;
+                btnNext.IsEnabled = currentPage < (totalRecords + pageSize - 1) / pageSize && pageSize != -1;
+                
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Произошла ошибка при загрузке данных: " + ex.Message);
             }
         }
+
 
         /// <summary>
         /// Применяет фильтрацию данных по введенному тексту.
