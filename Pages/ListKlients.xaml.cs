@@ -21,6 +21,10 @@ namespace Authoservice.Pages
             InitializeComponent();
             LoadData();
         }
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadData();
+        }
 
         /// <summary>
         /// Загружает данные о клиентах, применяет фильтры, сортировки и обновляет интерфейс.

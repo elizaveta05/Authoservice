@@ -6,7 +6,7 @@
       xmlns:local="clr-namespace:Authoservice.Pages"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="ListKlients" Background="White" >
+      Title="ListKlients" Background="White" Loaded="Page_Loaded">
     <Grid>
 
         <Grid.RowDefinitions>
