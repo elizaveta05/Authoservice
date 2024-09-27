@@ -25,6 +25,7 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -38,28 +39,31 @@
                        VerticalAlignment="Center" 
                        HorizontalAlignment="Center" 
                        FontWeight="Bold"/>
-            <Label Content="Фотография" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0"/>
-            <Label Content="Фамилия" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0"/>
-            <Label Content="Имя" HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0"/>
-            <Label Content="Отчество" HorizontalAlignment="Right" Grid.Row="4" Grid.Column="0"/>
-            <Label Content="Email" HorizontalAlignment="Right" Grid.Row="5" Grid.Column="0"/>
-            <Label Content="Телефон" HorizontalAlignment="Right" Grid.Row="6" Grid.Column="0"/>
-            <Label Content="Дата рождения" HorizontalAlignment="Right" Grid.Row="7" Grid.Column="0"/>
-            <Label Content="Пол" HorizontalAlignment="Right" Grid.Row="8" Grid.Column="0"/>
+            <Label x:Name="lblID" Content="Идентификатор" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0"/>
+            <Label Content="Фотография" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0"/>
+            <Label Content="Фамилия" HorizontalAlignment="Right" Grid.Row="3" Grid.Column="0"/>
+            <Label Content="Имя" HorizontalAlignment="Right" Grid.Row="4" Grid.Column="0"/>
+            <Label Content="Отчество" HorizontalAlignment="Right" Grid.Row="5" Grid.Column="0"/>
+            <Label Content="Email" HorizontalAlignment="Right" Grid.Row="6" Grid.Column="0"/>
+            <Label Content="Телефон" HorizontalAlignment="Right" Grid.Row="7" Grid.Column="0"/>
+            <Label Content="Дата рождения" HorizontalAlignment="Right" Grid.Row="8" Grid.Column="0"/>
+            <Label Content="Пол" HorizontalAlignment="Right" Grid.Row="9" Grid.Column="0"/>
 
-            <Image x:Name="imageClient" Width="40" Height="40" Grid.Row="1" Grid.Column="2"/>
-            <TextBox x:Name="tbFirstName" Grid.Row="2" Grid.Column="2" Margin="5"/>
-            <TextBox x:Name="tbLastName" Grid.Row="3" Grid.Column="2" Margin="5"/>
-            <TextBox x:Name="tbPatronymic" Grid.Row="4" Grid.Column="2" Margin="5"/>
-            <TextBox x:Name="tbEmail" Grid.Row="5" Grid.Column="2" Margin="5"/>
-            <TextBox x:Name="tbPhone" Grid.Row="6" Grid.Column="2" Margin="5"/>
-            <DatePicker x:Name="dpBirthday" SelectedDateFormat="Long" Grid.Row="7" Grid.Column="2"/>
-            <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.Column="2">
+            <TextBox x:Name="tbID" Grid.Row="1" Grid.Column="2" Margin="5"/>
+            <Image x:Name="imageClient" Width="40" Height="40" Grid.Row="2" Grid.Column="2" />
+            <TextBox x:Name="tbFirstName" Grid.Row="3" Grid.Column="2" Margin="5"/>
+            <TextBox x:Name="tbLastName" Grid.Row="4" Grid.Column="2" Margin="5"/>
+            <TextBox x:Name="tbPatronymic" Grid.Row="5" Grid.Column="2" Margin="5"/>
+            <TextBox x:Name="tbEmail" Grid.Row="6" Grid.Column="2" Margin="5"/>
+            <TextBox x:Name="tbPhone" Grid.Row="7" Grid.Column="2" Margin="5"/>
+            <DatePicker x:Name="dpBirthday" SelectedDateFormat="Long" Grid.Row="8" Grid.Column="2"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="9" Grid.Column="2">
                 <RadioButton x:Name="rbMale" GroupName="Gender" Content="Мужской" Margin="5"/>
                 <RadioButton x:Name="rbFemale" GroupName="Gender" Content="Женский" Margin="5"/>
             </StackPanel>
-            <Button x:Name="btnWrite" Grid.Row="9" Grid.Column="0" Content="Записать" Margin="5" Click="btnWrite_Click"/>
-            <Button x:Name="btnDelete" Grid.Row="9" Grid.Column="2" Content="Удалить" Margin="5" Click="btnDelete_Click"/>
+            <Button x:Name="btnWrite" Grid.Row="10" Grid.Column="0" Content="Записать" Width="120" Height="30" Margin="5" Click="btnWrite_Click"/>
+            <Button x:Name="btnChangePhoto" Content="Изменить фото" Grid.Row="10" Grid.Column="2" Width="120" Height="30" Margin="5" Click="btnChangePhoto_Click"/>
+            <Button x:Name="btnDelete" Grid.Row="10" Grid.Column="1" Content="Удалить" Margin="5" Click="btnDelete_Click"/>
         </Grid>
 
         <Grid Grid.Column="1">
@@ -70,32 +74,20 @@
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Text="Сведения о тегах клиента" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <DataGrid Grid.Row="1" x:Name="gridTag" AutoGenerateColumns="False" IsReadOnly="True" SelectionChanged="gridTag_SelectionChanged">
-                <DataGrid.Columns>
-                    <DataGridTemplateColumn Header="Теги">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <ItemsControl ItemsSource="{Binding Tag}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Title}" Background="{Binding ColorBrush}" Margin="2" Padding="2"/>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+            <StackPanel Grid.Row="1" x:Name="stackPanelTags" Orientation="Vertical" Margin="10">
+                <ItemsControl ItemsSource="{Binding AvailableTags}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5">
+                                <CheckBox IsChecked="{Binding IsChecked}" Content="{Binding Title}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
 
-            <Grid Grid.Row="2" Margin="5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" x:Name="btnAddTag" Content="Добавить" Margin="5" Click="btnAddTag_Click"/>
-                <Button Grid.Column="1" x:Name="btnDalateTag" Content="Удалить" Margin="5" Click="btnDalateTag_Click"/>
-            </Grid>
+            <Button Grid.Row="2" x:Name="btnSaveTag" Content="Сохранить" Margin="5" Click="btnSaveTag_Click" />
+
         </Grid>
     </Grid>
 </Page>

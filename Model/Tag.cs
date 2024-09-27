@@ -24,6 +24,10 @@ namespace Authoservice.Model
         public int ID { get; set; }
         public string Title { get; set; }
         public string Color { get; set; }
+
+        // Свойство для хранения состояния "выбран/не выбран"
+        public bool IsChecked { get; set; }
+
         public SolidColorBrush ColorBrush
         {
             get

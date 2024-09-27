@@ -176,7 +176,9 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Window\" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\clients\1.jpg" />
     <Resource Include="Images\clients\10.jpg" />

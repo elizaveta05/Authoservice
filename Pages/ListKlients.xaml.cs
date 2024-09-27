@@ -247,5 +247,10 @@ namespace Authoservice.Pages
                 MessageBox.Show("Пожалуйста, выберите клиента для редактирования.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
+
+        private void btnAdd_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new PageKlients(null));
+        }
     }
 }
