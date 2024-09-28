@@ -47,6 +47,7 @@ namespace Authoservice.Pages
                 tbID.Visibility = Visibility.Hidden;
                 lblID.Visibility = Visibility.Hidden;
                 btnSaveTag.Visibility = Visibility.Hidden;
+                btnDelete.Visibility = Visibility.Hidden;
             }
         }
 

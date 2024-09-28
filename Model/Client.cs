@@ -11,7 +11,8 @@ namespace Authoservice.Model
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.Linq;
+
     public partial class Client
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -31,7 +32,17 @@ namespace Authoservice.Model
         public string Phone { get; set; }
         public string GenderCode { get; set; }
         public string PhotoPath { get; set; }
-    
+
+        public DateTime? LastVisitDate
+        {
+            get
+            {
+                return this.ClientService.Any()
+                    ? (DateTime?)this.ClientService.Max(cs => cs.StartTime)
+                    : null;
+            }
+        }
+
         public virtual Gender Gender { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ClientService> ClientService { get; set; }

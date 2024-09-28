@@ -1,4 +1,5 @@
 ﻿using Authoservice.Model;
+using Authoservice.Window;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,8 +37,10 @@ namespace Authoservice.Pages
             {
                 // Получаем базовый запрос
                 var query = Number2Entities.GetContext().Client
+                    .Include("ClientService")  // Подгружаем информацию о посещениях
                     .Include("Tag")
                     .AsQueryable();
+
 
                 // Применяем фильтры и сортировку
                 query = ApplySearchFilter(query);
@@ -213,7 +216,42 @@ namespace Authoservice.Pages
             LoadData();
         }
 
-        private void clientGrid_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
+        private void clientGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (clientsGrid.SelectedItems.Count != 1) return;  // Ожидается один выбранный элемент
+
+            // Получаем выбранного клиента
+            var selectedClient = clientsGrid.SelectedItem as Client;
+            if (selectedClient == null)
+            {
+                MessageBox.Show("Произошла ошибка при выборе клиента.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            try
+            {
+                // Проверяем наличие посещений у клиента
+                var clientServices = Number2Entities.GetContext().ClientService
+                    .Where(cs => cs.ClientID == selectedClient.ID)
+                    .ToList();
+
+                if (clientServices.Count == 0)
+                {
+                    MessageBox.Show("У выбранного клиента нет посещений.", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                // Открываем окно с посещениями
+                var visitsWindow = new VisitsKlient(selectedClient);
+                visitsWindow.Owner = Window.VisitsKlient.GetWindow(this);
+                visitsWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Произошла ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
 
         /// <summary>
         /// Удаление клиента.
@@ -232,15 +270,6 @@ namespace Authoservice.Pages
 
                 try
                 {
-                    // Удаляем записи связи клиента с тегами в таблице TagOfClient
-                    /*
-                    var clientTags = Number2Entities.GetContext().TagOfClient.Where(tc => tc.ClientID == selectedClient.ID).ToList();
-                    foreach (var clientTag in clientTags)
-                    {
-                        Number2Entities.GetContext().TagOfClient.Remove(clientTag);
-                    }
-                    */
-
                     // Удаляем самого клиента
                     Number2Entities.GetContext().Client.Remove(selectedClient);
                     Number2Entities.GetContext().SaveChanges();
